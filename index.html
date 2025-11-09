@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ashtonseth.com</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0e27;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dialog {
+            background: #1a1f3a;
+            border: 1px solid #2d3548;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #f1f5f9;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .value {
+            font-size: 16px;
+            color: #60a5fa;
+            word-break: break-all;
+            padding: 12px;
+            background: #0f1629;
+            border-radius: 6px;
+            border: 1px solid #1e293b;
+        }
+
+        .url-display {
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .url-display:hover {
+            background: #1a2332;
+        }
+
+        .url-display:focus {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px;
+        }
+
+        .url-hint {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .url-expanded {
+            word-break: break-all;
+        }
+
+        .redirect-info {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #2d3548;
+            font-size: 14px;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .countdown {
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .button:hover {
+            background: #2563eb;
+        }
+
+        .button:focus {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 480px) {
+            .dialog {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .value {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+        <h1 id="dialog-title">Under Construction! Redirecting...</h1>
+        
+        <div class="info-section">
+            <div class="label" id="domain-label">Current Site</div>
+            <div class="value" aria-labelledby="domain-label" id="domain">example.com</div>
+        </div>
+
+        <div class="info-section">
+            <div class="label" id="redirect-label">Redirecting To</div>
+            <div 
+                class="value url-display" 
+                aria-labelledby="redirect-label" 
+                id="redirectUrl"
+                tabindex="0"
+                role="button"
+                aria-expanded="false"
+                onclick="toggleUrl()"
+                onkeypress="handleKeyPress(event)"
+            >
+                https://www.destination-website.com
+            </div>
+            <div class="url-hint" id="urlHint">Click or hover to show full path</div>
+        </div>
+
+        <div class="redirect-info" id="dialog-description">
+            You will be redirected in <span class="countdown" id="countdown" aria-live="polite">5</span> seconds
+        </div>
+
+        <button class="button" onclick="redirect()" aria-label="Redirect now">
+            Continue Now
+        </button>
+    </div>
+
+    <script>
+        // Configuration - Change these values
+        const DOMAIN = 'https://ashtonseth.com';
+        const REDIRECT_URL = 'https://ashtonseth.notion.site/ashtonseth-13a105cd66ed432586b744a3e62f275b';
+        const COUNTDOWN_SECONDS = 6;
+
+        // Parse URL
+        let urlObj;
+        try {
+            urlObj = new URL(REDIRECT_URL);
+        } catch (e) {
+            urlObj = null;
+        }
+
+        const domainOnly = urlObj ? urlObj.origin : REDIRECT_URL;
+        const fullUrl = REDIRECT_URL;
+        
+        let isExpanded = false;
+
+        // Update display
+        document.getElementById('domain').textContent = DOMAIN;
+        const redirectUrlEl = document.getElementById('redirectUrl');
+        redirectUrlEl.textContent = domainOnly;
+
+        function toggleUrl() {
+            isExpanded = !isExpanded;
+            redirectUrlEl.textContent = isExpanded ? fullUrl : domainOnly;
+            redirectUrlEl.setAttribute('aria-expanded', isExpanded);
+            
+            if (isExpanded) {
+                redirectUrlEl.classList.add('url-expanded');
+                document.getElementById('urlHint').textContent = 'Click to show domain only';
+            } else {
+                redirectUrlEl.classList.remove('url-expanded');
+                document.getElementById('urlHint').textContent = 'Click or hover to show full path';
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleUrl();
+            }
+        }
+
+        // Hover effect
+        redirectUrlEl.addEventListener('mouseenter', function() {
+            if (!isExpanded) {
+                this.textContent = fullUrl;
+                this.classList.add('url-expanded');
+            }
+        });
+
+        redirectUrlEl.addEventListener('mouseleave', function() {
+            if (!isExpanded) {
+                this.textContent = domainOnly;
+                this.classList.remove('url-expanded');
+            }
+        });
+
+        // Countdown logic
+        let timeLeft = COUNTDOWN_SECONDS;
+        const countdownEl = document.getElementById('countdown');
+
+        function redirect() {
+            window.location.href = REDIRECT_URL;
+        }
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdownEl.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                redirect();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
